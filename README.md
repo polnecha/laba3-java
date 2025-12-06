@@ -12,7 +12,48 @@
 
 ### **Алгоритм решения**
 
+**Класс ru.nechaeva.students.StudentRange (наследник ru.nechaeva.students.Student, проверка оценок 2–5)**
 
+```java
+package ru.nechaeva.students;
+
+import java.util.Arrays;
+
+public class StudentRange extends Student {
+
+    public StudentRange(String name, int... grades) {
+        super(name); // вызываем конструктор родителя, чтобы имя сохранилось
+        setGradesChecked(grades); // задаём оценки с проверкой диапазона
+    }
+
+    // Метод для добавления одной новой оценки
+    public void addGrade(int grade) {
+        checkGrade(grade);
+        int[] oldGrades = getGrades();
+        int[] newGrades = Arrays.copyOf(oldGrades, oldGrades.length + 1);
+        newGrades[newGrades.length - 1] = grade;
+        super.setGrades(newGrades);
+    }
+
+    // Метод для установки сразу нескольких оценок с проверкой диапазона
+    public void setGradesChecked(int[] grades) {
+        for (int g : grades) {
+            checkGrade(g); // проверяем каждую оценку
+        }
+        super.setGrades(grades.clone()); // сохраняем копию массива, чтобы нельзя было изменить его снаружи
+    }
+
+    private void checkGrade(int grade) {
+        if (grade < 2 || grade > 5) {
+            throw new IllegalArgumentException("Оценка должна быть в диапазоне от 2 до 5!");
+        }
+    }
+
+    // toString() наследуем из ru.nechaeva.students.Student
+}
+
+
+```
 ---
 
 # **Задание 2. Разработка структур данных**
@@ -45,8 +86,60 @@
 Продемонстрируйте работоспособность решения на примерах.
 
 ### **Алгоритм решения**
+**Класс ru.nechaeva.phonebook.PhoneBook**
+```java
+import java.util.*;
 
+public class ru.nechaeva.phonebook.PhoneBook {
 
+    private Map<String, String> nameToPhone = new HashMap<>();
+    private Map<String, String> phoneToName = new HashMap<>();
+
+    public ru.nechaeva.phonebook.PhoneBook() {}
+
+    public String add(String phone, String name) {
+        String oldPhone = nameToPhone.put(name, phone);
+        if (oldPhone != null) phoneToName.remove(oldPhone);
+        phoneToName.put(phone, name);
+        return oldPhone;
+    }
+
+    public void remove(String name) {
+        String phone = nameToPhone.remove(name);
+        if (phone != null) phoneToName.remove(phone);
+    }
+
+    public String getPhone(String name) { return nameToPhone.get(name); }
+
+    public boolean containsName(String name) { return nameToPhone.containsKey(name); }
+    public boolean containsPhone(String phone) { return phoneToName.containsKey(phone); }
+    public int size() { return nameToPhone.size(); }
+
+    public String[] getAllPairs() {
+        String[] arr = new String[nameToPhone.size()];
+        int i = 0;
+        for (var entry : nameToPhone.entrySet()) arr[i++] = entry.getKey() + " - " + entry.getValue();
+        return arr;
+    }
+
+    public String[] getPhones() { return phoneToName.keySet().toArray(new String[0]); }
+    public String[] getNames() { return nameToPhone.keySet().toArray(new String[0]); }
+
+    public String[] getNamesByPrefix(String prefix) {
+        List<String> list = new ArrayList<>();
+        for (String name : nameToPhone.keySet()) if (name.startsWith(prefix)) list.add(name);
+        return list.toArray(new String[0]);
+    }
+
+    @Override
+    public String toString() { return String.join("\n", getAllPairs()); }
+}
+
+```
+
+****
+```java
+```
 ---
 
 # **Задание 3. Наследование**
@@ -57,7 +150,48 @@
 
 ### **Алгоритм решения**
 
+**Класс ru.nechaeva.geometry.Point (2D)**
 
+```java
+public class ru.nechaeva.geometry.Point {
+    protected int x;
+    protected int y;
+
+    public ru.nechaeva.geometry.Point(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    @Override
+    public String toString() {
+        return "{" + x + ";" + y + "}";
+    }
+}
+
+```
+**Класс ru.nechaeva.geometry.Point3D (наследник ru.nechaeva.geometry.Point)**
+
+```java
+
+
+public class figures.Point3D extends
+
+Point {
+
+    private int z;  // третья координата
+
+    public ru.nechaeva.geometry.Point3D( int x, int y, int z){
+        super(x, y);  // вызываем конструктор родителя
+        this.z = z;
+    }
+
+    @Override
+    public String toString () {
+        return "{" + x + ";" + y + ";" + z + "}";
+    }
+}
+
+```
 ---
 
 # **Задание 4. Создание иерархий (abstract)**
@@ -71,9 +205,133 @@
 4. **Треугольник** — задается тремя точками координат.  
 
 Для каждой фигуры обязательно должна быть возможность рассчитать её площадь.
-
+**Класс Figure**
 ### **Алгоритм решения**
+```java
+package ru.nechaeva.geometry;
 
+public abstract class Figure {
+    public abstract double getArea();
+
+    @Override
+    public abstract String toString();
+}
+```
+**Класс Circle**
+```java
+package ru.nechaeva.geometry;
+
+public class Circle extends Figure {
+
+    private Point center;
+    private double radius;
+
+    public Circle(Point center, double radius) {
+        this.center = center;
+        this.radius = radius;
+    }
+
+    @Override
+    public double getArea() {
+        return Math.PI * radius * radius;
+    }
+
+    @Override
+    public String toString() {
+        return "Круг: центр=" + center + ", радиус=" + radius;
+    }
+}
+
+```
+**Класс Rectangle**
+```java
+package ru.nechaeva.geometry;
+
+public class Rectangle extends Figure {
+
+    private Point topLeft;
+    private double width;
+    private double height;
+
+    public Rectangle(Point topLeft, double width, double height) {
+        this.topLeft = topLeft;
+        this.width = width;
+        this.height = height;
+    }
+
+    @Override
+    public double getArea() {
+        return width * height;
+    }
+
+    @Override
+    public String toString() {
+        return "Прямоугольник: точка=" + topLeft + ", ширина=" + width + ", высота=" + height;
+    }
+}
+
+```
+**Класс Triangle**
+```java
+package ru.nechaeva.geometry;
+
+public class Triangle extends Figure {
+
+    private Point p1, p2, p3;
+
+    public Triangle(Point p1, Point p2, Point p3) {
+        this.p1 = p1;
+        this.p2 = p2;
+        this.p3 = p3;
+    }
+    //Вспомогательный метод: считает расстояние между двумя точками
+    private double distance(Point a, Point b) {
+        return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
+    }
+    //формула Герона
+    @Override
+    public double getArea() {
+        double a = distance(p1, p2);
+        double b = distance(p2, p3);
+        double c = distance(p3, p1);
+
+        double s = (a + b + c) / 2.0;
+        return Math.sqrt(s * (s - a) * (s - b) * (s - c));
+    }
+
+    @Override
+    public String toString() {
+        return "Треугольник: " + p1 + ", " + p2 + ", " + p3;
+    }
+}
+
+```
+**Класс Square**
+```java
+package ru.nechaeva.geometry;
+
+public class Square extends Figure {
+
+    private Point topLeft;
+    private double side;
+
+    public Square(Point topLeft, double side) {
+        this.topLeft = topLeft;
+        this.side = side;
+    }
+
+    @Override
+    public double getArea() {
+        return side * side;
+    }
+
+    @Override
+    public String toString() {
+        return "Квадрат: верхняя левая точка=" + topLeft + ", сторона=" + side;
+    }
+
+}
+```
 
 ---
 
@@ -87,6 +345,27 @@
 ### **Алгоритм решения**
 
 
+**AreaCalculator**
+```java
+package ru.nechaeva.geometry;
+
+public class AreaCalculator {
+
+    // Метод считает сумму площадей набора фигур
+    public static double totalArea(Figure[] figures) {
+        double sum = 0;
+
+        for (Figure f : figures) {
+            if (f != null) {
+                sum += f.getArea();
+            }
+        }
+
+        return sum;
+    }
+}
+
+```
 ---
 
 ## **Задача 6. Замкнутый квадрат**
@@ -95,7 +374,78 @@
 При этом сигнатура метода, возвращающего ломаную, должна остаться без изменений.
 
 ### **Алгоритм решения**
+**Класс Square**
+```java
+package ru.nechaeva.geometry;
 
+public class Square extends Figure {
+
+    private Point topLeft;
+    private double side;
+
+    public Square(Point topLeft, double side) {
+        this.topLeft = topLeft;
+        this.side = side;
+    }
+
+    @Override
+    public double getArea() {
+        return side * side;
+    }
+
+     //Для 5 задания
+     //Возвращает ЗАМКНУТУЮ ломаную линию квадрата
+
+    public Polyline getPolyline() {
+        Polyline p = new Polyline();
+        Point p1 = topLeft;
+        Point p2 = new Point(topLeft.x + (int)side, topLeft.y);
+        Point p3 = new Point(topLeft.x + (int)side, topLeft.y + (int)side);
+        Point p4 = new Point(topLeft.x, topLeft.y + (int)side);
+
+        p.addPoint(p1);
+        p.addPoint(p2);
+        p.addPoint(p3);
+        p.addPoint(p4);
+
+        p.addPoint(p1);   // ЗАМЫКАНИЕ ЛОМАНОЙ
+
+        return p;
+    }
+
+    @Override
+    public String toString() {
+        return "Квадрат: верхняя левая точка=" + topLeft + ", сторона=" + side;
+    }
+}
+
+```
+
+**Класс Polyline**
+```java
+package ru.nechaeva.geometry;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Polyline {
+    private List<Point> points = new ArrayList<>();
+
+    public void addPoint(Point p) {
+        points.add(p);
+    }
+
+    public List<Point> getPoints() {
+        return points;
+    }
+
+    @Override
+    public String toString() {
+        return points.toString();
+    }
+}
+
+```
 
 ---
 
@@ -104,10 +454,49 @@
 ## **Задача 2. Сравнение точек**
 ### **Текст задачи**
 Измените сущность **Точка** из задачи 1.4.1.  
-Переопределите метод сравнения объектов по состоянию таким образом, чтобы две точки считались одинаковыми тогда, когда они расположены в одинаковых координатах.
+Переопределите метод сравнения объектов по состоянию таким образом,
+чтобы две точки считались одинаковыми тогда, когда они расположены в одинаковых координатах.
 
 ### **Алгоритм решения**
 
+**Класс Point. Переопределение equals()**
+```java
+
+package ru.nechaeva.geometry;
+import java.util.Objects;
+
+public class Point {
+    protected int x;
+    protected int y;
+
+    public Point(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+    //Для 6 задания
+    // Переопределяем equals()
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Point other = (Point) obj;
+        return this.x == other.x && this.y == other.y;
+    }
+
+    // Переопределяем hashCode()
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y);
+    }
+
+    @Override
+    public String toString() {
+        return "{" + x + ";" + y + "}";
+    }
+
+}
+
+```
 
 ---
 
@@ -125,7 +514,32 @@
 
 ### **Алгоритм решения**
 
+**Струтура проекта**
+```java
+laba3-java/
+├─ src/
+│  ├─ ru/
+│     ├─ nechaeva/
+│        ├─ geometry/
+│        │  ├─ Point.java
+│        │  ├─ Point3D.java
+│        │  ├─ Figure.java
+│        │  ├─ Circle.java
+│        │  ├─ Rectangle.java
+│        │  ├─ Square.java
+│        │  ├─ Triangle.java
+│        │  ├─ Polyline.java
+│        │  └─ AreaCalculator.java
+│        │
+│        │
+│        ├─ phonebook/
+│        │  └─ PhoneBook.java
+│        │
+│        └─ students/
+│           ├─ Student.java
+│           └─ StudentRange.java
 
+```
 ---
 
 ## **Задача 2. Главный метод**
@@ -137,7 +551,38 @@
 
 ### **Алгоритм решения**
 
+**Структура проекта**
+```java
+laba3-java/
+├─ src/
+│  ├─ ru/
+│     ├─ nechaeva/
+│        ├─ geometry/
+│        │  ├─ Point.java
+│        │  ├─ Point3D.java
+│        │  ├─ Figure.java
+│        │  ├─ Circle.java
+│        │  ├─ Rectangle.java
+│        │  ├─ Square.java
+│        │  ├─ Triangle.java
+│        │  ├─ Polyline.java
+│        │  └─ AreaCalculator.java
+│        │
+│        ├─ main/
+│        │  ├─ Main.java
+│        │  ├─ MainPower.java
+│        │  ├─ PowerUtil.java
+│        │  ├─ PointClone.java
+│        │  └─ InputUtils.java
+│        │
+│        ├─ phonebook/
+│        │  └─ PhoneBook.java
+│        │
+│        └─ students/
+│           ├─ Student.java
+│           └─ StudentRange.java
 
+```
 ---
 
 ## **Задача 3. Возведение в степень**
@@ -151,6 +596,42 @@
 
 ### **Алгоритм решения**
 
+**Класс PowerUtil**
+```java
+package ru.nechaeva.main;
+
+import static java.lang.Integer.parseInt;
+import static java.lang.Math.pow;
+public class PowerUtil {
+
+    public static double power(String xStr, String yStr) {
+        int x = parseInt(xStr);
+        int y = parseInt(yStr);
+
+        return pow(x, y);
+    }
+}
+```
+**Класс MainPower**
+```java
+package ru.nechaeva.main;
+public class MainPower {
+    public static void main(String[] args) {
+        if (args.length < 2) {
+            System.out.println("Ошибка: требуется два аргумента X и Y");
+            return;
+        }
+
+        try {
+            double result = PowerUtil.power(args[0], args[1]);
+            System.out.println("Результат: " + result);
+        } catch (NumberFormatException e) {
+            System.out.println("Ошибка: аргументы должны быть числами");
+        }
+    }
+}
+
+```
 
 ---
 
@@ -159,8 +640,51 @@
 ## **Задача 4. Клонирование точки**
 ### **Текст задачи**
 Измените сущность **Точка** из 2.6.2.  
-Переопределите метод клонирования, унаследованный от класса `Object`, таким образом, чтобы при его вызове возвращался новый объект **Точки**, значения полей которого будут копиями оригинальной точки.
+Переопределите метод клонирования, унаследованный от класса `Object`, таким образом, 
+чтобы при его вызове возвращался новый объект **Точки**, 
+значения полей которого будут копиями оригинальной точки.
 
 ### **Алгоритм решения**
 
 ---
+
+**Класс PointClone**
+```java
+package ru.nechaeva.main;
+import java.util.Objects;
+
+public class PointClone implements Cloneable{
+    protected int x;
+    protected int y;
+
+    public PointClone(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+    // Переопределяем equals() — сравниваем координаты
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        PointClone other = (PointClone) obj;
+        return this.x == other.x && this.y == other.y;
+    }
+
+    // Переопределяем hashCode() 
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y);
+    }
+
+    @Override
+    public String toString() {
+        return "{" + x + ";" + y + "}";
+    }
+    @Override
+    public PointClone clone() {
+        return new PointClone(this.x, this.y);
+
+}
+}
+
+```
